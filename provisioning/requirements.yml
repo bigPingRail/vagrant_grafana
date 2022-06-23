@@ -1,0 +1,11 @@
+- src: geerlingguy.docker
+  version: 4.2.4
+  name: docker_role
+
+- src: geerlingguy.pip
+  version: 2.1.0
+  name: pip_role
+  
+- src: geerlingguy.node_exporter
+  version: 1.0.2
+  name: node_exporter_role

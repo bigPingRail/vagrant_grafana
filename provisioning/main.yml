@@ -1,0 +1,44 @@
+---
+- hosts: all
+  become: yes
+  vars: 
+    pip_install_packages: 
+      - name: docker
+  
+  tasks:
+    - name: Create roles directory
+      become: no
+      file:
+        path: roles
+        state: directory
+      delegate_to: localhost
+
+    - name: Pull required roles from ansible galaxy
+      become: no
+      local_action: command ansible-galaxy install -r requirements.yml --roles-path roles
+
+    - name: Install roles to target host
+      include_role:
+        name: "{{ item }}"
+      with_items:
+        - docker_role
+        - node_exporter_role
+        - pip_role
+
+    - name: install Python plugin for docker
+      pip:
+        name: docker-compose 
+
+    - name: Push docker-compose config
+      ansible.posix.synchronize:
+        src: compose/
+        dest: compose/
+
+    - name: Run `docker-compose up` 
+      community.docker.docker_compose:
+        project_src: compose
+        build: no
+      register: output
+
+    - ansible.builtin.debug:
+        var: output
