@@ -19,4 +19,10 @@ Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "./provisioning/main.yml"
   end
+  
+  config.trigger.after :destroy do |t|
+    t.info = "Delete downloaded roles"
+    t.run = {inline: "bash -c 'rm -rf ./provisioning/roles'"}
+  end
+
 end

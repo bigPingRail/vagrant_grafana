@@ -1,10 +1,7 @@
 ---
 - hosts: all
   become: yes
-  vars: 
-    pip_install_packages: 
-      - name: docker
-  
+
   tasks:
     - name: Create roles directory
       become: no
@@ -16,7 +13,7 @@
     - name: Pull required roles from ansible galaxy
       become: no
       local_action: command ansible-galaxy install -r requirements.yml --roles-path roles
-
+ 
     - name: Install roles to target host
       include_role:
         name: "{{ item }}"
@@ -24,6 +21,9 @@
         - docker_role
         - node_exporter_role
         - pip_role
+      vars: 
+        pip_install_packages: 
+          - name: docker
 
     - name: install Python plugin for docker
       pip:
@@ -33,6 +33,11 @@
       ansible.posix.synchronize:
         src: compose/
         dest: compose/
+
+    - name: Download node exporter dashboard
+      get_url:
+        url: https://grafana.com/api/dashboards/1860/revisions/27/download
+        dest: compose/provisioning/dashboards/node-exporter-full_rev27.json
 
     - name: Run `docker-compose up` 
       community.docker.docker_compose:
